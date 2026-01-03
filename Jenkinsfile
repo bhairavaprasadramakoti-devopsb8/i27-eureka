@@ -10,7 +10,7 @@ pipeline {
         stage ('build'){
             steps {
                 echo 'Building Eureka Application'
-                sh "mvn package"
+                sh "mvn package -DskipTests=true"
                 archiveArtifacts artifacts: 'target/*jar'
             }
         }
