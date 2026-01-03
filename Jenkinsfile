@@ -11,6 +11,7 @@ pipeline {
             steps {
                 echo 'Building Eureka Application'
                 sh "mvn package"
+                archiveArtifacts artifacts: 'target/*jar'
             }
         }
     }
