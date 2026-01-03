@@ -17,5 +17,18 @@ pipeline {
                 archiveArtifacts artifacts: 'target/*jar'
             }
         }
+        stage ('sonarqube') {
+            steps {
+                echo "Starting Sonar Scans"
+                sh """
+                mvn clean verify sonar:sonar \
+                    -Dsonar.projectKey=i27-eureka \
+                    -Dsonar.host.url=http://136.119.175.25:9000 \
+                    -Dsonar.login=sqa_ef3c202cdd0ccf67383baeaca3d409839d845734
+                """
+            }
+        }
     }
 }
+
+
