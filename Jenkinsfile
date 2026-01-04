@@ -22,12 +22,19 @@ pipeline {
         stage ('sonarqube') {
             steps {
                 echo "Starting Sonar Scans"
-                sh """
-                mvn clean verify sonar:sonar \
-                    -Dsonar.projectKey=i27-eureka \
-                    -Dsonar.host.url=${env.SONAR_URL} \
-                    -Dsonar.login=${env.SONAR_TOKEN}
-                """
+                withSonarQubeEnv('SonarQube'){
+                    sh """
+                    mvn clean verify sonar:sonar \
+                        -Dsonar.projectKey=i27-eureka \
+                        -Dsonar.host.url=${env.SONAR_URL} \
+                        -Dsonar.login=${env.SONAR_TOKEN}
+                    """
+                }
+                timeout (time: 2, unit: 'MINUTES'){
+                    script {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
             }
         }
         stage ('DockerBuild') {
