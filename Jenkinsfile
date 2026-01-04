@@ -49,10 +49,11 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('DockerBuild') {
             steps {
                 ///i27-eureka-0.0.1-SNAPSHOT.jar
                 echo "Existing Jar Format: i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
+                echo "Target Jar Format: i27-${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.${env.POM_PACKAGING}"
                 // New format
                 // i27-eureka-22-master.jar
                 echo '**** Building Docker Image ****'
