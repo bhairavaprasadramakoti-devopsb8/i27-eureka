@@ -57,6 +57,7 @@ pipeline {
         stage('DockerBuild') {
             steps {
                 ///i27-eureka-0.0.1-SNAPSHOT.jar
+                sh "cp target/i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ./cicd"
                 echo "Existing Jar Format: i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
                 echo "Target Jar Format: i27-${env.APPLICATION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.${env.POM_PACKAGING}"
                 // New format
