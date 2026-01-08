@@ -67,6 +67,10 @@ pipeline {
                 echo '**** Building Docker Image ****'
                 // sh 'docker build -t eureka:latest .'
                 docker build --no-cache --build-arg JAR_SOURCE=i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT ./.cicd
+                echo "***************** Docker Login *****************"
+                docker login -u ${DOCKER_CREDS_USR} -p ${DOCKER_CREDS_PSW}
+                echo "****************** Pushing Image to Docker Hub *****************"
+                docker push ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT
                 """
             }
         }
