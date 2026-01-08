@@ -8,4 +8,6 @@ ARG JAR_SOURCE
 
 COPY ["${JAR_SOURCE}", "/opt/i27/i27-eureka.jar"]
 
+EXPOSE 8761
+
 CMD ["java", "-jar", "/opt/i27/i27-eureka.jar"]
