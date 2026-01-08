@@ -14,6 +14,11 @@ pipeline {
         SONAR_TOKEN = credentials('sonar_creds')
         POM_VERSION = readMavenPom().getVersion()
         POM_PACKAGING = readMavenPom().getPackaging()
+
+        // Docker hub details
+        DOCKER_HUB = "docker.io/bhairavaprasadramakoti"
+        DOCKER_CREDS = credentials("dockerhub_creds")
+        //JFROG_DOCKER_REPO = "i27.jfrog.io"
     }
 
     stages {
@@ -58,10 +63,11 @@ pipeline {
                 // i27-eureka-22-master.jar
                 echo '**** Building Docker Image ****'
                 // sh 'docker build -t eureka:latest .'
+                sh "docker build --no-cache --build-arg JAR_SOURCE=i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT ./.cicd"
             }
         }
     }
 }
 
 
-
+// bhairavaprasadramakoti
