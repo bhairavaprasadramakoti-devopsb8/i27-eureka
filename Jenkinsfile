@@ -77,7 +77,14 @@ pipeline {
         stage ('DeployToDev') {
             steps {
                 echo "Deploying to Dev environment"
-                sh "docker run --name ${env.APPLICATION_NAME}-dev -d -p 5761:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+                script {
+                    // Stop the Container
+                    sh "docker stop ${env.APPLICATION_NAME}-dev"
+                    // Remove the Container
+                    sh "docker rm ${env.APPLICATION_NAME}-dev"
+                    // Creating a Container
+                    sh "docker run --name ${env.APPLICATION_NAME}-dev -d -p 5761:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+                }
             }
 
         }
