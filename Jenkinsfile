@@ -76,17 +76,103 @@ pipeline {
         }
         stage ('DeployToDev') {
             steps {
-                echo "Deploying to Dev environment"
                 script {
+                    // Calling the method and passing the arguments
+                    dockerDeploy('dev', '5761').call()
+                }
+
+                // echo "Deploying to Dev environment"
+                // script {
+                //     try {
+                //     // Stop the Container
+                //     sh "docker stop ${env.APPLICATION_NAME}-dev"
+                //     // Remove the Container
+                //     sh "docker rm ${env.APPLICATION_NAME}-dev"
+                //     // Creating a Container
+                //     }
+                //     catch(err) {
+                //         echo "Error Caught: $err"                                    
+                //     }
+                //     sh "docker run --name ${env.APPLICATION_NAME}-dev -d -p 5761:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+                // }
+            }
+
+        }
+        stage ('DeployToTest') {
+            steps {
+                echo "Deploying to Test environment"
+                script {
+                    try {
                     // Stop the Container
-                    sh "docker stop ${env.APPLICATION_NAME}-dev"
+                    sh "docker stop ${env.APPLICATION_NAME}-test"
                     // Remove the Container
-                    sh "docker rm ${env.APPLICATION_NAME}-dev"
+                    sh "docker rm ${env.APPLICATION_NAME}-test"
                     // Creating a Container
-                    sh "docker run --name ${env.APPLICATION_NAME}-dev -d -p 5761:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+                    }
+                    catch(err) {
+                        echo "Error Caught: $err"                                    
+                    }
+                    sh "docker run --name ${env.APPLICATION_NAME}-test -d -p 5761:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
                 }
             }
 
+        }
+        stage ('DeployToStage') {
+            steps {
+                echo "Deploying to Stage environment"
+                script {
+                    try {
+                    // Stop the Container
+                    sh "docker stop ${env.APPLICATION_NAME}-stage"
+                    // Remove the Container
+                    sh "docker rm ${env.APPLICATION_NAME}-stage"
+                    // Creating a Container
+                    }
+                    catch(err) {
+                        echo "Error Caught: $err"                                    
+                    }
+                    sh "docker run --name ${env.APPLICATION_NAME}-stage -d -p 5761:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+                }
+            }
+
+        }
+        stage ('DeployToProd') {
+            steps {
+                echo "Deploying to Prod environment"
+                script {
+                    try {
+                    // Stop the Container
+                    sh "docker stop ${env.APPLICATION_NAME}-prod"
+                    // Remove the Container
+                    sh "docker rm ${env.APPLICATION_NAME}-prod"
+                    // Creating a Container
+                    }
+                    catch(err) {
+                        echo "Error Caught: $err"                                    
+                    }
+                    sh "docker run --name ${env.APPLICATION_NAME}-prod -d -p 5761:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+                }
+            }
+
+        }
+    }
+}
+
+def dockerDeploy(envDeploy, port) {
+    return {
+        echo "Deploying to $envDeploy environment"
+        script {
+            try {
+                // Stop the Container
+                sh "docker stop ${env.APPLICATION_NAME}-$envDeploy"
+                // Remove the Container
+                sh "docker rm ${env.APPLICATION_NAME}-$envDeploy"
+                // Creating a Container
+            }
+            catch(err) {
+                echo "Error Caught: $err"                                    
+            }
+            sh "docker run --name ${env.APPLICATION_NAME}-$envDeploy -d -p $port:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
         }
     }
 }
