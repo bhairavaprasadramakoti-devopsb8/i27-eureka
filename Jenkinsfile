@@ -8,6 +8,34 @@ pipeline {
         jdk 'JDK-17'
     }
 
+    parameters {
+        choice(name: 'buildOnly',
+            choices: 'no\nyes',   // ['false', 'true'],
+            description: 'Set to true to only build the application without deploying'   
+        )
+        choice(name: 'dockerPush',
+            choices: 'no\nyes', // ['false', 'true'],
+            description: 'Set to true to only push the docker image to registry'
+        )
+        choice(name: 'deployToDev',
+            choices: 'no\nyes', // ['false', 'true'],
+            description: 'Set to true to deploy to Dev environment'
+        )
+        choice(name: 'deployToTest',
+            choices: 'no\nyes', // ['false', 'true'],
+            description: 'Set to true to deploy to Test environment'
+        )
+        choice(name: 'deployToStage',
+            choices: 'no\nyes', // ['false', 'true'],
+            description: 'Set to true to deploy to Stage environment'
+        )
+        choice(name: 'deployToProd',
+            choices: 'no\nyes', // ['false', 'true'],
+            description: 'Set to true to deploy to Prod environment'
+        )
+        
+    }
+
     environment {
         APPLICATION_NAME = 'eureka'
         SONAR_URL = 'http://34.57.107.12:9000'
@@ -24,10 +52,29 @@ pipeline {
     stages {
 
         stage('Build') {
+            when {
+                anyOf {
+                    // expression { params.buildOnly == 'no' }
+                    // expression { params.dockerPush == 'yes' }
+                    // expression { params.deployToDev == 'yes' }
+                    // expression { params.deployToTest == 'yes' }
+                    // expression { params.deployToStage == 'yes' }
+                    // expression { params.deployToProd == 'yes' }
+                    // expression { params.buildOnly == 'no' || params.dockerPush == 'yes' || params.deployToDev == 'yes' || params.deployToTest == 'yes' || params.deployToStage == 'yes' || params.deployToProd == 'yes'
+                    expression {
+                        params.buildOnly == 'yes'
+                        params.dockerPush == 'yes'
+                    }
+                }
+            }
             steps {
-                echo "Building ${APPLICATION_NAME} Application"
-                sh 'mvn clean package -DskipTests=true'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                script {
+                    // Calling the buildApp method
+                    buildApp().call()
+                }
+                // echo "Building ${APPLICATION_NAME} Application"
+                // sh 'mvn clean package -DskipTests=true'
+                // archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
 
@@ -54,7 +101,14 @@ pipeline {
             }
         }
 
-        stage('DockerBuild') {
+        stage('DockerBuildAndPush') {
+            when {
+                anyOf {
+                    expression {
+                        params.dockerPush == 'yes'
+                    }
+                }
+            }
             steps {
                 dockerBuildAndPush().call()
                 ///i27-eureka-0.0.1-SNAPSHOT.jar
@@ -76,6 +130,13 @@ pipeline {
             }
         }
         stage ('DeployToDev') {
+            when {
+                anyOf {
+                    expression {
+                        params.deployToDev == 'yes'
+                    } 
+                }
+            }
             steps {
                 script {
                     // Calling the method and passing the arguments
@@ -100,6 +161,13 @@ pipeline {
 
         }
         stage ('DeployToTest') {
+            when {
+                anyOf {
+                    expression {
+                        params.deployToTest == 'yes'
+                    } 
+                }
+            }
             steps {
                 script {
                     // Calling the method and passing the arguments
@@ -123,6 +191,13 @@ pipeline {
 
         }
         stage ('DeployToStage') {
+            when {
+                anyOf {
+                    expression {
+                        params.deployToStage == 'yes'
+                    } 
+                }
+            }
             steps {
                 script {
                     // Calling the method and passing the arguments
@@ -146,6 +221,13 @@ pipeline {
 
         }
         stage ('DeployToProd') {
+            when {
+                anyOf {
+                    expression {
+                        params.deployToProd == 'yes'
+                    } 
+                }
+            }
             steps {
                 script {
                     // Calling the method and passing the arguments
@@ -168,6 +250,15 @@ pipeline {
             }
 
         }
+    }
+}
+
+// Build the application
+def buildApp() {
+    return {
+        echo "Building ${APPLICATION_NAME} Application"
+        sh 'mvn clean package -DskipTests=true'
+        archiveArtifacts artifacts: 'target/*.jar' //, fingerprint: true
     }
 }
 
