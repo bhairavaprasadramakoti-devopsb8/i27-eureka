@@ -139,6 +139,8 @@ pipeline {
             }
             steps {
                 script {
+                    // Image Validation
+                    imageValidation().call()
                     // Calling the method and passing the arguments
                     dockerDeploy('dev', '5761').call()
                 }
@@ -170,6 +172,8 @@ pipeline {
             }
             steps {
                 script {
+                    // Image Validation
+                    imageValidation().call()
                     // Calling the method and passing the arguments
                     dockerDeploy('test', '6761').call()
                 }
@@ -200,6 +204,8 @@ pipeline {
             }
             steps {
                 script {
+                    // Image Validation
+                    imageValidation().call()
                     // Calling the method and passing the arguments
                     dockerDeploy('stage', '7761').call()
                 }
@@ -290,6 +296,21 @@ def dockerDeploy(envDeploy, port) {
                 echo "Error Caught: $err"                                    
             }
             sh "docker run --name ${env.APPLICATION_NAME}-$envDeploy -d -p $port:8761 -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+        }
+    }
+}
+
+// Image Validation
+def imageValidation(){
+    return {
+        try {
+            sh "docker pull ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:$GIT_COMMIT"
+            println("*************** Image Pulled Successfully ****************")
+        }
+        catch(Exception e){
+            println("*************** OOPS, The image is not available **************** So creating it")
+            buildApp().call()
+            dockerBuildAndPush().call()
         }
     }
 }
