@@ -244,6 +244,10 @@ pipeline {
                 }
             }
             steps {
+                timeout(time: 300, unit: 'SECONDS'){
+                    input message: "Deploying Eureka to Production ?", ok: 'yes', submitter: 'i27academy,sreuser'
+                }
+                
                 script {
                     // Calling the method and passing the arguments
                     dockerDeploy('prod', '8761').call()
